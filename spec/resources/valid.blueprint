@@ -1,0 +1,13 @@
+---
+name: Valid
+tasks:
+    -
+        id: task1
+        name: Task1Name
+        description: Task1Description
+        command: null1
+        color: green
+        error: ignore
+    -
+        id: task2
+        command: null2

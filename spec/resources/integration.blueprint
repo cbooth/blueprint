@@ -1,0 +1,7 @@
+---
+name: Integration
+tasks:
+    -
+        id: touch
+        name: Touch
+        command: touch spec/resources/tmp/touchfile

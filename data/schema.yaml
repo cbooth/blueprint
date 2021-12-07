@@ -1,0 +1,38 @@
+type: map
+required: yes
+mapping:
+  "name":
+    type: str
+    required: no
+    unique: no
+  "tasks":
+    type: seq
+    required: yes
+    sequence:
+      - type: map
+        required: yes
+        mapping:
+          "id":
+            type: str
+            required: yes
+            unique: yes
+          "name":
+            type: str
+            required: no
+            unique: no
+          "description":
+            type: str
+            required: no
+            unique: no
+          "command":
+            type: str
+            required: yes
+            unique: no
+          "color":
+            type: str
+            required: no
+            unique: no
+          "error":
+            type: str
+            required: no
+            unique: no

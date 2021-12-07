@@ -1,0 +1,136 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+###############################################################################
+# blueprint
+# Provides the main entrypoint into the Blueprint CLI
+# Parses command line arguments, dispatches into blueprint.rb, forwards errors.
+#
+# Copyright 2021-2022 Callum Booth
+# Licensed under MIT
+###############################################################################
+
+require 'optparse'
+
+require 'tty-exit'
+require 'tty-logger'
+require 'tty-markdown'
+
+lib_path = File.expand_path('../lib', __dir__)
+$:.unshift(lib_path) if !$:.include?(lib_path)
+require 'blueprint'
+require 'blueprint/errors'
+require 'blueprint/helpers'
+
+include TTY::Exit
+
+logger = TTY::Logger.new
+
+Signal.trap('INT') do
+  logger.warn("\n#{caller.join("\n")}: interrupted")
+  exit(1)
+end
+
+begin
+  options = {}
+  OptionParser.new do |opts|
+    opts.on('--task x,y,z', Array,
+      'A specific task or list of single tasks to be run in given sequence') do |task_list|
+        options[:tasks] = task_list
+    end
+
+    opts.on('--from TASK', String, 'A specific task to run the blueprint from') do |task|
+      options[:from] = task
+    end
+
+    opts.on('--to TASK', String, 'A specific task to run the blueprint to') do |task|
+      options[:to] = task
+    end
+
+    opts.on('--version', 'Show version') do
+      puts Version
+      exit
+    end
+
+    opts.on('-h', '--help', 'Show this message') do
+      puts TTY::Markdown.parse(<<-USAGE
+**Usage: blueprint [PATH] [options]**
+
+Specific options
+================
+--task x,y,z
+: A specific task or list of single tasks to be run in given sequence
+
+--from TASK
+: A specific task to run the blueprint from
+
+--to TASK
+: A specific task to run the blueprint to
+
+Examples
+========
+Run the tasklist in the current working directory's .blueprint file
+: $ blueprint
+
+Run the tasklist from a different file
+: $ blueprint path/to/blueprint.yml
+
+Run one individual task from the tasklist
+: $ blueprint --task third_task
+
+Run a range of tasks from the tasklist
+: $ blueprint --from third_task --to sixth_task
+
+Common options
+==============
+-h, --help
+: Show this message
+
+--version
+: Show version
+      
+      USAGE
+      )
+      exit
+    end
+  end.parse!
+
+  # OptionParser only captures switches, any filename passed will be left behind in ARGV
+  #  We pass the unparsed remainder of ARGV as the path and allow CLI.go to assign defaults if nil.
+  path = ARGV
+
+  bp = Blueprint::Blueprint.new
+  result = bp.go(path, options)
+
+  if result[:failure_count] > 0
+    logger.error("Blueprint finished with #{result[:failures]} #{Blueprint::Helpers.naive_pluralise('error', result[:failures])}." \
+                 "Tasks #{result[:failures].join(',')} failed.")
+  else
+    logger.success("Blueprint completed successfully. #{result[:task_count]} tasks ran.")
+  end
+
+rescue Blueprint::ValidationError => err
+  logger.fatal(err.message)
+  exit_with(:data_error)
+
+rescue Blueprint::InvalidTaskError => err
+  logger.fatal(err.message)
+  exit_with(:usage_error)
+
+rescue Blueprint::NoTaskSpecError => err
+  logger.fatal(err.message)
+  exit_with(:usage_error)
+
+rescue Blueprint::TooManyPathsError => err
+  logger.fatal(err.message)
+  exit_with(:usage_error)
+
+rescue IOError => err
+  logger.fatal(err.message)
+  exit_with(:no_input)
+
+rescue StandardError => err
+  logger.fatal(err.message)
+  exit_with(:error)
+
+end

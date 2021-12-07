@@ -1,0 +1,24 @@
+---
+name: Constraints
+tasks:
+    -
+        id: task1
+        command: echo
+    -
+        id: task2
+        command: echo
+    -
+        id: task3
+        command: echo
+    -
+        id: task4
+        command: echo
+    -
+        id: task5
+        command: echo
+    -
+        id: task6
+        command: echo
+    -
+        id: task7
+        command: echo

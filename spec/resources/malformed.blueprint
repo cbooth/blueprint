@@ -1,0 +1,9 @@
+---
+name: Malformed
+tasks:
+    -
+        name: Task1Name
+        description: Task1Description
+        command: null1
+        color: green
+        error: ignore
