@@ -2,6 +2,8 @@
 
 Blueprint is a language-agnostic, task-agnostic, project-agnostic, just generally very agnostic, task-runner. Simply describe the steps of your task in a very concise YAML file at the root of your project, and run `$ blueprint` to build, or deploy, or run, or serve, or whatever it is you need to get your project going. Think of it like `$ npm run ...` but in Ruby.
 
+[![CodeQL](https://github.com/cbooth/blueprint/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/cbooth/blueprint/actions/workflows/codeql-analysis.yml)
+[![GitHub issues](https://img.shields.io/github/issues/cbooth/blueprint)](https://github.com/cbooth/blueprint/issues)
 ## Usage
 
 ```
